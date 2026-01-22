@@ -1,23 +1,27 @@
+import os
+import sys
+
 log_file = "logs/app.log"
 keywords = ["ERROR", "FAIL", "CRITICAL"]
 
-found_issue = False  # cờ đánh dấu có lỗi hay không
+alert_key = os.getenv("ALERT_KEY")
 
-try:
-    with open(log_file, "r") as f:
-        for line in f:
-            for k in keywords:
-                if k in line:
-                    print("Found issue:", line.strip())
-                    found_issue = True
+if not alert_key:
+    print("Missing ALERT_KEY")
+    sys.exit(2)
 
-    if found_issue:
-        print("Log check FAILED")
-        exit(1)
-    else:
-        print("Log check PASSED")
-        exit(0)
+found = False
 
-except FileNotFoundError:
-    print("Log file not found:", log_file)
-    exit(2)
+with open(log_file, "r") as f:
+    for line in f:
+        for k in keywords:
+            if k in line:
+                print("Found issue:", line.strip())
+                found = True
+
+if found:
+    print("Using secret to alert (simulated):", alert_key[:4] + "***")
+    sys.exit(1)
+
+print("No critical issues found")
+sys.exit(0)
